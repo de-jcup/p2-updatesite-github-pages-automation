@@ -1,11 +1,29 @@
 #!/bin/bash
 # SPDX-License-Identifier: Apache 2.0
 
-# Version 1.0
-# -----------
+SCRIPT_VERSION="1.1.0"
+GITHUB_USER="de-jcup"
+# ------------------------------------
+# P2 hosting script by github actions
+# ------------------------------------
 # for origin file refer to https://github.com/de-jcup/p2-updatesite-github-pages-automation
-
 #
+# Steps for usage:
+# 
+# 0. Copy this script to the root folder of your origin eclipse plugin repository root folder
+# 1. create update site github repository 
+#    a) Name it same as your origin project, but with prefix "update-site-" before 
+#       Example: if your eclipse project is called "eclipse-my-tool" create another repository called "update-site-eclipse-my-tool"
+#    b) Enable github actions on your default branch
+#     
+# 2. Ensure your update site project inside your origin git repository is the only project inside repo having a "updatesite" at the end of name
+# 3. Change the github user inside script if necessary
+# 4. Setup KEYSTORE_PWD and KEYSTORE_LOCATION with correct values, they are used for automated jar signing
+# 5. When you have build your eclipse updatesite project switch to root folder and execute `./deploy.sh`
+#    When asked for your github credentials, just apply the information ... 
+# 6. Use https://${GITHUB_USER}.github.io/update-site-$originRepoName/update-site for update location at eclipse marketplace 
+
+
 # How it works
 # - JAR signing environment variables must be set
 # - jar signing is done automatically
@@ -45,8 +63,6 @@ function initVariables(){
         exit 1
     fi
 
-
-    GITHUB_USER="de-jcup"
     SOURCE_PROJECT_DIR=${PWD}
     UPDATE_SITE_NAME=$(file *update* | grep directory | cut -d':' -f1)
     SOURCE_PROJECT_NAME=${SOURCE_PROJECT_DIR##*/}          # we use current directory name to identify (assume the project has been checked out with name like on github
@@ -60,7 +76,7 @@ function initVariables(){
 
 function showHeader(){
     headline "*******************************************************************"
-    headline "* Deployment of update site: '${UPDATE_SITE_NAME}'"
+    headline "* Deployment of update site: '${UPDATE_SITE_NAME}'                 " 
     headline "*******************************************************************"
     headline "ROOT  : $THIS_ROOT_DIR"
     headline "TARGET: $TARGET_PROJECT_DIR"
@@ -84,10 +100,11 @@ function signNewJarsInUpdateSiteProject(){
         continue
       fi
       CHECKSUM=$(sha256sum $f)
-      CHECKSUM_FILENAME="${f}.sha256"
       if [ ! -f "$CHECKSUM_FILENAME" ] ; then
           echo "Signing feature: $f file..."
           jarsigner -keystore $KEYSTORE_LOCATION -storepass:env KEYSTORE_PWD $f signFiles
+          # Build checksum after signing - so available to check downloads, if necessary
+          CHECKSUM_FILENAME="${f}.sha256"
           echo "$CHECKSUM" > $CHECKSUM_FILENAME
           echo
       else
@@ -102,11 +119,12 @@ function signNewJarsInUpdateSiteProject(){
       if [ ${f: -7} == ".sha256" ]; then
         continue
       fi
-      CHECKSUM=$(sha256sum $f)
       CHECKSUM_FILENAME="${f}.sha256"
       if [ ! -f "$CHECKSUM_FILENAME" ]; then
           echo "Signing plugin: $f file..."
           jarsigner -keystore $KEYSTORE_LOCATION -storepass:env KEYSTORE_PWD $f signFiles
+          # Build checksum after signing - so available to check downloads, if necessary
+          CHECKSUM=$(sha256sum $f)
           echo "$CHECKSUM" > $CHECKSUM_FILENAME
           echo  
       else
@@ -187,6 +205,3 @@ copyOriginUpdateSiteContent
 signNewJarsInUpdateSiteProject
 addFilesToUpdateSiteRepo
 commitAndPushUpdateSiteRepo
-
-
-
