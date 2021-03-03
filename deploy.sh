@@ -14,7 +14,7 @@ GITHUB_USER="de-jcup"
 # 1. create update site github repository 
 #    a) Name it same as your origin project, but with prefix "update-site-" before 
 #       Example: if your eclipse project is called "eclipse-my-tool" create another repository called "update-site-eclipse-my-tool"
-#    b) Enable github actions on your default branch
+#    b) Enable github pages on your default branch - on root folder
 #     
 # 2. Ensure your update site project inside your origin git repository is the only project inside repo having a "updatesite" at the end of name
 # 3. Change the github user inside script if necessary
