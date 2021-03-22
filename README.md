@@ -14,5 +14,5 @@ For first time you will need to do following steps to prepare:
 
 ### Update mechanism
 1. build your eclipse plugin and features
-2. all `./deploy.sh` (if there are missing environment variables, the script will tell you)
+2. call `./deploy.sh` (if there are missing environment variables, the script will tell you)
 
