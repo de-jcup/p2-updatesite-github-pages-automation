@@ -1,8 +1,19 @@
 #!/bin/bash
 # SPDX-License-Identifier: Apache 2.0
 
-SCRIPT_VERSION="1.1.0"
+SCRIPT_VERSION="1.2.0"
 GITHUB_USER="de-jcup"
+
+set -e
+## Changes
+## -------
+## 1.1.0
+##  -  improvements
+## 1.2.0 
+##  - using SSH checkout instead https
+##  - errors do now stop the script
+
+
 # ------------------------------------
 # P2 hosting script by github actions
 # ------------------------------------
@@ -150,7 +161,9 @@ function ensureCleanUpdateSiteRepository(){
        info "pwd:${PWD}"
     fi
     info "fetch update-site repository from scratch"
-    git clone https://github.com/$GITHUB_USER/$TARGET_PROJECT_NAME
+    git clone git@github.com:$GITHUB_USER/$TARGET_PROJECT_NAME
+    # e.g. git@github.com:de-jcup/update-site-eclipse-plumago.git
+
     cd $TARGET_PROJECT_DIR
     git pull
 }
